@@ -38,9 +38,14 @@ void insert_at_tail(node_pointer *ptr_to_head, node_pointer new_sheep_ptr){
         current_node = &((*current_node)->next);
 
     }
-
-        new_sheep_ptr->next = *current_node;
-        *current_node = new_sheep_ptr;
+//add check to determine if the date of new node and and last node in list have duplicate date and time
+//if duplicate do not add new item
+//if(new_sheep_ptr->time.tm_sec - prev_node->time->tm_sec == 0){
+    //ignore node as duplicate time
+//}else {
+    new_sheep_ptr->next = *current_node;
+    *current_node = new_sheep_ptr;
+//}
 
 }
 
@@ -68,7 +73,7 @@ int check_stationary_nodes(node_pointer positions){
 
 int main() { int i;
 
-    //setup of global variables
+    //setup of variables
     node_pointer head = NULL;
     node_pointer temp_position;
     char filename[20] = "test";
@@ -86,8 +91,25 @@ int main() { int i;
         printf("error");
         exit(1);
     }
+
     //read in GPS data from file specified
+    //reads in garbage data at start of file then adds first coordinate time pair as head of list
     while (!feof(fp)) {
+        while(valid_lines == 0){
+            fgets(str, INPUT_SIZE, fp);
+            sscanf(str, "%lf, %lf, %d/%d/%d, %d:%d:%d", &temp_latitude, &temp_longitude, &temp_time.tm_mday,
+                   &temp_time.tm_mon, &temp_time.tm_year, &temp_time.tm_hour, &temp_time.tm_min, &temp_time.tm_sec);
+            if (temp_latitude == 0 && temp_longitude == 0) {
+                garbage_lines++;
+            } else {
+                temp_position = make_sheep_node(temp_latitude, temp_longitude, temp_time);
+                head = temp_position;
+                valid_lines++;
+                temp_latitude = 0.0, temp_longitude = 0.0;
+            }
+        }
+
+        //iterates through file ignoring garbage data and adding nodes
         fgets(str, INPUT_SIZE, fp);
         sscanf(str, "%lf, %lf, %d/%d/%d, %d:%d:%d", &temp_latitude, &temp_longitude, &temp_time.tm_mday,
                &temp_time.tm_mon, &temp_time.tm_year, &temp_time.tm_hour, &temp_time.tm_min, &temp_time.tm_sec);
@@ -98,9 +120,8 @@ int main() { int i;
             temp_position = make_sheep_node(temp_latitude, temp_longitude, temp_time);
             insert_at_tail(&head, temp_position);
             valid_lines++;
-            temp_latitude = 0.0, temp_longitude = 0.0;
         }
-
+        temp_latitude = 0.0, temp_longitude = 0.0;
 //    printf("%lf %lf %d/%d/%d %d:%d:%d\n", latitude, longitude,temp_tm.tm_mday,temp_tm.tm_mon,temp_tm.tm_year,temp_tm.tm_hour,temp_tm.tm_min,temp_tm.tm_sec);
     }
     display_positions(head);
