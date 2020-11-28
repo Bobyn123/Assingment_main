@@ -1,134 +1,102 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "functions.h"
-//#include "distances.c"
-
-//makes new node for linked list of sheep positions
-node_pointer make_sheep_node(double new_latitude, double new_longitude, struct tm new_time){
-    node_pointer new_node_ptr;
-    new_node_ptr = malloc(sizeof(sheep_position));
-
-    if(new_node_ptr == NULL){
-        return NULL; //no memory
-    }else {
-        //node data
-        new_node_ptr -> latitude = new_latitude;
-        new_node_ptr -> longitude = new_longitude;
-        new_node_ptr -> time = new_time;
-        new_node_ptr -> next = NULL;
-        return new_node_ptr;
-    }
+//TODO refactor main function to put file intake section in functions, then move into seperate source file
+void get_input(){
 
 }
 
-//void insert_at_top(node_pointer *ptr_to_head, node_pointer new_sheep_ptr){
-//    new_sheep_ptr->next = *ptr_to_head;
-//    *ptr_to_head = new_sheep_ptr;
-//}
+int main() {
+    //setup of initial variables
 
-//inserts sheep node at tail of linked list
-//need to add code to not add node with identical time
-void insert_at_tail(node_pointer *ptr_to_head, node_pointer new_sheep_ptr){
-    node_pointer * prev_node;
-    node_pointer * current_node;
-    current_node = ptr_to_head;
+    //setup of linked list
+    position_node_pointer position_head = NULL;
+    position_node_pointer current_position;
 
-    while(*current_node != NULL){
-        prev_node = current_node;
-        current_node = &((*current_node)->next);
-
-    }
-//add check to determine if the date of new node and and last node in list have duplicate date and time
-//if duplicate do not add new item
-//if(new_sheep_ptr->time.tm_sec - prev_node->time->tm_sec == 0){
-    //ignore node as duplicate time
-//}else {
-    new_sheep_ptr->next = *current_node;
-    *current_node = new_sheep_ptr;
-//}
-
-}
-
-//prints contents of linked list
-void display_positions(node_pointer positions){
-    printf("The positions recorded are:\n");
-    while(positions !=NULL){
-        printf("%lf %lf %d/%d/%d %d:%d:%d\n",positions->latitude, positions->longitude,positions->time.tm_mday,
-               positions->time.tm_mon,positions->time.tm_year,positions->time.tm_hour,positions->time.tm_min,positions->time.tm_sec);
-//        printf("%lf %lf %s\n",positions->latitude, positions->longitude, asctime(&positions->time));
-        positions = positions->next;
-    }
-}
-//checks to see how many nodes of the list have no change in position
-int check_stationary_nodes(node_pointer positions){
-    int stationary= 0;
-    while(positions !=NULL){
-        if(positions->latitude - positions->next->latitude == 0 && positions->longitude - positions->next->longitude == 0 ) {
-            stationary++;
-        }
-        positions = positions->next;
-    }
- return stationary;
-}
-
-int main() { int i;
-
-    //setup of variables
-    node_pointer head = NULL;
-    node_pointer temp_position;
-    char filename[20] = "test";
-    int valid_lines = 0, garbage_lines = 0;
-    double temp_latitude = 0.0, temp_longitude = 0.0;
-    struct tm temp_time;
-    char str[INPUT_SIZE];
+    char filename[20] = "Collar_12.TXT"; //filename hardcoded for testing have option to change later
     FILE *fp;
+
+    //variables used for file input, counting input types and temp variables
+    int valid_lines = 0, garbage_lines = 0, no_change_lines = 0;
+    double current_latitude = 0.0, current_longitude = 0.0, previous_latitude = 0.0, previous_longitude = 0.0;
+    struct tm current_time, previous_time;
+    char str[INPUT_SIZE];
 
     //open file containing information
     //    printf("What file do you want to open: ");
     //    scanf(" %[^\n\t]", filename);
     fp = fopen(filename, "r");
     if (!fp) {
-        printf("error");
+        printf("Error: File not found");
         exit(1);
     }
 
-    //read in GPS data from file specified
-    //reads in garbage data at start of file then adds first coordinate time pair as head of list
+    /**
+     * read in GPS data from file specified
+     * reads in garbage data at start of file then adds first node as position_head of list
+     * TODO refactor this section to reduce code reuse
+     */
     while (!feof(fp)) {
-        while(valid_lines == 0){
+        while (valid_lines == 0) {
             fgets(str, INPUT_SIZE, fp);
-            sscanf(str, "%lf, %lf, %d/%d/%d, %d:%d:%d", &temp_latitude, &temp_longitude, &temp_time.tm_mday,
-                   &temp_time.tm_mon, &temp_time.tm_year, &temp_time.tm_hour, &temp_time.tm_min, &temp_time.tm_sec);
-            if (temp_latitude == 0 && temp_longitude == 0) {
-                garbage_lines++;
+            sscanf(str, "%lf, %lf, %d/%d/%d, %d:%d:%d", &current_latitude, &current_longitude, &current_time.tm_mday,
+                   &current_time.tm_mon, &current_time.tm_year, &current_time.tm_hour, &current_time.tm_min,
+                   &current_time.tm_sec);
+            if (current_latitude == 0 && current_longitude == 0) {
+                garbage_lines++; //increments count of lines to be ignored due to bad garbage line
             } else {
-                temp_position = make_sheep_node(temp_latitude, temp_longitude, temp_time);
-                head = temp_position;
+                current_position = make_sheep_node(current_latitude, current_longitude, current_time);
+                position_head = current_position;
+                previous_time = current_time;
                 valid_lines++;
-                temp_latitude = 0.0, temp_longitude = 0.0;
+                //record position of current new position for comparison
+                previous_latitude = current_latitude;
+                previous_longitude = current_longitude;
+                current_latitude = 0.0, current_longitude = 0.0;
             }
         }
 
         //iterates through file ignoring garbage data and adding nodes
         fgets(str, INPUT_SIZE, fp);
-        sscanf(str, "%lf, %lf, %d/%d/%d, %d:%d:%d", &temp_latitude, &temp_longitude, &temp_time.tm_mday,
-               &temp_time.tm_mon, &temp_time.tm_year, &temp_time.tm_hour, &temp_time.tm_min, &temp_time.tm_sec);
+        sscanf(str, "%lf, %lf, %d/%d/%d, %d:%d:%d", &current_latitude, &current_longitude, &current_time.tm_mday,
+               &current_time.tm_mon, &current_time.tm_year, &current_time.tm_hour, &current_time.tm_min,
+               &current_time.tm_sec);
 
-        if (temp_latitude == 0 && temp_longitude == 0) {
-            garbage_lines++;
+        if (current_latitude == 0 && current_longitude == 0) {
+            garbage_lines++; //increments count of lines to be ignored due to bad garbage line
         } else {
-            temp_position = make_sheep_node(temp_latitude, temp_longitude, temp_time);
-            insert_at_tail(&head, temp_position);
-            valid_lines++;
+            if (current_time.tm_sec == previous_time.tm_sec && current_time.tm_min == previous_time.tm_min &&
+                current_time.tm_hour == previous_time.tm_hour
+                    ) {
+                garbage_lines++; //increments count of lines to be ignored due to no change in time
+
+            } else if (current_latitude == previous_latitude && current_longitude == previous_longitude) {
+                no_change_lines++; //increments count of lines with no change in position
+
+            } else {
+                current_position = make_sheep_node(current_latitude, current_longitude, current_time);
+                position_insert_at_tail(&position_head, current_position);
+                //record position of current new position for comparison
+                previous_latitude = current_latitude;
+                previous_longitude = current_longitude;
+                valid_lines++;
+            }
         }
-        temp_latitude = 0.0, temp_longitude = 0.0;
+        current_latitude = 0, current_longitude = 0;
 //    printf("%lf %lf %d/%d/%d %d:%d:%d\n", latitude, longitude,temp_tm.tm_mday,temp_tm.tm_mon,temp_tm.tm_year,temp_tm.tm_hour,temp_tm.tm_min,temp_tm.tm_sec);
     }
-    display_positions(head);
-    int stationary_points;
-    stationary_points = check_stationary_nodes(head);
-    printf("There were %d lines in total with %d valid lines, %d garbage lines", valid_lines + garbage_lines,
-           valid_lines, garbage_lines);
+//    display_positions(position_head);
+    printf("There were %d lines in total with %d valid lines, %d garbage lines and %d lines with no change in position\n\n",
+           valid_lines + garbage_lines,
+           valid_lines, garbage_lines, no_change_lines);
+    fclose(fp);
+
+    movement_node_pointer movement_head = NULL;
+
+    generate_movement_list(position_head, &movement_head);
+
+    save_movement_list(movement_head);
+
     return 0;
 
 }

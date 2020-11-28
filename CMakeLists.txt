@@ -3,4 +3,4 @@ project(Assingment_main C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(Assingment_main main.c functions.h distances.c)
+add_executable(Assingment_main main.c functions.h distances.c data_proccessing.c)
