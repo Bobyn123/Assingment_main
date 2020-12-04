@@ -1,5 +1,6 @@
 //
-// Created by Bobyn on 14/11/2020.
+// Code provided by Neal Snooke to implent the haversine function on 14/11/2020.
+// modified by Robyn Vaughan-Williams to comply with in use data structure
 //
 
 
