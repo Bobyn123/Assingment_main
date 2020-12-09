@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "functions.h"
+
+extern char file_name[20];
 /**
  * plots the movements of the sheep as vectors with starting latitude and longitude
  * and the tail of the vector and the change in latitude and longitude as the magnitude of the vector
@@ -14,7 +16,6 @@
  */
 void plot_movements_as_vectors(movement_node_pointer movement) {
     //taking input file name and inserting it at front of gnuplot output filename
-    extern char file_name[20];
     char output_file[50] = "";
     char gnuplot[50] = "gnuplot ";
 
@@ -85,9 +86,8 @@ void plot_movements_as_vectors(movement_node_pointer movement) {
  * @param movement linked list
  */
 void plot_histogram(movement_node_pointer movement){
-    extern num_bars;
+    extern int num_bars; //number of bars to break the histogram down into
     //taking input file name and inserting it at front of gnuplot output filename
-    extern char file_name[20];
     char output_file[50] = "";
     char gnuplot[50] = "gnuplot ";
 
