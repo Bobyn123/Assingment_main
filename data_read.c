@@ -88,7 +88,6 @@ void read_data(position_node_pointer* position_head, char file_name[20]){
     /**
      * read in GPS data from file specified
      * reads in garbage data at start of file then adds first node as position_head of list
-     * TODO refactor this section to reduce code reuse
      */
     while (!feof(fp_read)) {
         while (valid_lines == 0) {

@@ -8,8 +8,9 @@
 #include <string.h>
 #include "functions.h"
 /**
- *
- * @param filename
+ * plots the movements of the sheep as vectors with starting latitude and longitude
+ * and the tail of the vector and the change in latitude and longitude as the magnitude of the vector
+ * @param movement linked list of movements
  */
 void plot_movements_as_vectors(movement_node_pointer movement) {
     //taking input file name and inserting it at front of gnuplot output filename
@@ -81,7 +82,7 @@ void plot_movements_as_vectors(movement_node_pointer movement) {
 
 /**
  * plots a histogram of the movement speed distribution
- * @param movement
+ * @param movement linked list
  */
 void plot_histogram(movement_node_pointer movement){
     extern num_bars;
@@ -143,6 +144,10 @@ void plot_histogram(movement_node_pointer movement){
 //    system(gnuplot);  //not asking system to actually run this file as the code is not yet fully implemented, cant figure out how to use gnuplot to plot a histogram
 }
 
+/**
+ * plots different all of the types of graphs implemented, in this case being the vector and histogram graphs
+ * @param movement linked list
+ */
 void plot_graphs(movement_node_pointer movement){
     plot_movements_as_vectors(movement);
     plot_histogram(movement);

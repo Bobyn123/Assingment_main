@@ -1,10 +1,6 @@
-/**
- * This is the main file for the project assigned in CS23820 to process sheep movement data by Robyn Vaughan-Williams
- *
- * This project can be interacted with by menu or any number of command line argument linking to config files for the program,
- * config files must follow the format of the config file in Appendix A of the project brief
- */
-
+// This is the main file for the project assigned in CS23820 to process sheep movement data by Robyn Vaughan-Williams
+// This project can be interacted with by menu or any number of command line argument linking to config files for the program,
+// config files must follow the format of the config file in Appendix A of the project brief
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
