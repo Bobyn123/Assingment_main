@@ -1,22 +1,38 @@
+/**
+ * This is the main file for the project assigned in CS23820 to process sheep movement data by Robyn Vaughan-Williams
+ *
+ * This project can be interacted with by menu or any number of command line argument linking to config files for the program,
+ * config files must follow the format of the config file in Appendix A of the project brief
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "functions.h"
 
+//global variables used in operation of program
 double min_movement_duration = 0, max_movement_duration = 604800, max_speed = 50, min_lon = 0, max_lon = 0, min_lat = 0, max_lat = 0;
 int num_bars = 20;
-char file_name[20] = "Collar_15.TXT";
+char file_name[20];
 char config_file[20];
 
+/**
+ * reads in collar data, processes data with respect to the specified constrains, graphs the processed data and outputs the processed data to the csv file
+ */
 void process_data_file() {
     position_node_pointer position_head = NULL;
     read_data(&position_head, file_name);
+//    print_positions_list(position_head); //used for testing
     movement_node_pointer movement_head = NULL;
     generate_movement_list(position_head, &movement_head);
-    print_movement_list(movement_head);
+//    print_movement_list(movement_head); //used for testing
+    plot_graphs(movement_head);
     save_movement_list(movement_head);
 }
 
+/**
+ * loads the configuration file specified in the config_file variable
+ */
 void load_config() {
     FILE *fp;
     char str[INPUT_SIZE];
@@ -53,6 +69,9 @@ void load_config() {
            "range_lat < %lf : %lf >\n",file_name,min_movement_duration, max_movement_duration, max_speed, num_bars, min_lon, max_lon, min_lat, max_lat);
 }
 
+/**
+ * saves the config constrains currently held in the program to the config file specified in the config_file parameter
+ */
 void update_config(){
     FILE *fp;
     fp = fopen(config_file, "w");
@@ -70,6 +89,9 @@ void update_config(){
     fclose(fp);
 }
 
+/**
+ * Through the use of a menu interface allows the user to edit the current data processing constrains held by the program
+ */
 void edit_config(){
     int sub_command = 1;
 
@@ -126,6 +148,9 @@ void edit_config(){
     }
 }
 
+/**
+ * Main menu for use if no program is run without command line arguments
+ */
 void main_menu() {
     int command = 1;
     //implement menu system
@@ -162,84 +187,23 @@ void main_menu() {
 }
 
 /**
- *
- * @param filename
+ * main function, has options for use in command line input and menu systems
+ * @param argc number of inputs
+ * @param argv any number of config files for batch processing
+ * @return
  */
-void createTestPlot() {
-    // note that gnuplot can produce an enormous range of plots and is extremely
-    // configurable. See http://www.gnuplot.info/documentation.html
-    char filename[] = "test_plot.gnuplot";
-
-    int sizex = 1024;
-    int sizey = 768;
-
-    // note all these items need double quotes around them in the output
-    // so they have been added here
-    char charttitle[] = "\"This is an example GnuPlot using vectors\"";
-    char plot1title[] = "\"test data sequence\"";
-    char xlabel[] = "\"horizontal axis\"";
-    char ylabel[] = "\"vertical axis\"";
-    char cblabel[] = "\"3rd axis (colour)\"";
-
-    FILE* datafile;
-
-    // create the output file for writing
-    if ((datafile = fopen(filename, "w")) == NULL) {
-        printf("Cannot open output file.\n");
-        exit(1);
-    }
-
-    // set up the output to produce an svg file output - lots of other possibilities
-    fprintf(datafile, "set terminal svg noenhanced linewidth 0.75 size %i,%i\n", sizex, sizey);
-
-    //set the file to save the graph into (without this it goes to the terminal)
-    fprintf(datafile, "set output \"%s.svg\"\n", filename);
-
-    // set the chart title
-    fprintf(datafile, "set title %s\n", charttitle);
-
-    //make the axis scale sutomatically based on the range of the data
-    fprintf(datafile, "set autoscale\n");
-
-    //set the axis labels and make them visible
-    fprintf(datafile, "set xlabel %s\nshow xlabel\n", xlabel);
-    fprintf(datafile, "set xlabel %s\nshow ylabel\n", xlabel);
-
-    // set the colour banding label
-    fprintf(datafile, "set cblabel %s\n", cblabel);
-
-    // define a set of colours, and the values for those colours
-    // the colours mix proportionately for values between those specified
-    fprintf(datafile, "set palette defined (0 \"black\", 2.5 \"blue\", 5 \"red\", 10 \"yellow\")\n");
-
-    // plot a set of vectors i.e. (startx, starty, lengthx, lengthy)
-    // '-' means the data follows in the file (it could also be in an external file)
-    // nohead means no arrows on the lines
-    // linecolor palette z means use the data item after the vector to produce the colour
-    fprintf(datafile, "plot '-' with vectors nohead linecolor palette z title %s\n", plot1title);
-
-    // draw a spiral shape...
-    for (int i=1; i<10; i++){
-        fprintf(datafile, "%i, %i, %i, %i, %f\n", i, i-1, 0, 21-(i*2),(double)i/2);
-        fprintf(datafile, "%i, %i, %i, %i, %f\n", i, 20-i, 20-(i*2),0,(double)i/2);
-        fprintf(datafile, "%i, %i, %i, %i, %f\n", 20-i, 20-i, 0, -(20-(i*2)),(double)i/2);
-        fprintf(datafile, "%i, %i, %i, %i, %f\n", 20-i, i, -(19-(i*2)), 0,(double)i/2);
-    }
-    fclose(datafile);
-}
-
 int main(int argc, char *argv[]) {
 
-    createTestPlot();
-    system("gnuplot test_plot.gnuplot" );
-//    if(argc == 1) {
-//        main_menu();
-//    }
-//    if (argc == 2) {
-//        strcpy(config_file,argv[1]);
-//        load_config();
-//        process_data_file();
-//    }
+
+    if(argc == 1) {
+        main_menu();
+    }
+    for(int i = 2; i <= argc; i++){
+            strcpy(config_file,argv[i-1]);
+            load_config();
+//            process_data_file();
+    }
+
 
     return 0;
 
