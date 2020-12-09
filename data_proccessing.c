@@ -122,7 +122,7 @@ void save_movement_list(movement_node_pointer movement){
            "Stationary: %.2lfs \n"
            "Foraging: %.2lfs \n"
            "Moving: %.2lfs \n"
-           "Implausible: %.2lfs \n ",
+           "Implausible: %.2lfs \n",
            total_stationary,total_foraging,total_moving,total_implausible);
     fclose(fp_write);
 }

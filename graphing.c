@@ -78,6 +78,7 @@ void plot_movements_as_vectors(movement_node_pointer movement) {
 
     fclose(datafile);
 
+    printf("Generating vector graph\n");
     system(gnuplot);
 }
 
